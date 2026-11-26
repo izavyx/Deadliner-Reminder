@@ -27,7 +27,7 @@ export default function LoginPage({
   return (
     <main className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center px-4 py-10">
       <Link href="/" className="text-sm text-zinc-500 hover:text-indigo-600">
-        ← Kembali ke berand
+        ← Kembali ke beranda
       </Link>
       <h1 className="mt-4 text-3xl font-bold tracking-tight">Masuk ke Deadliner</h1>
       <p className="mt-1 text-zinc-500">Masuk untuk melihat tugas kuliahmu.</p>
