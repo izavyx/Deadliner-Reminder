@@ -31,7 +31,11 @@ const displayFmt = new Intl.DateTimeFormat("id-ID", {
  */
 export function DatePicker({ name, defaultValue }: { name: string; defaultValue?: string }) {
   const [today] = useState(() => new Date());
-  const [initial] = useState(() => (defaultValue ? new Date(defaultValue) : null));
+  const [initial] = useState(() => {
+    if (!defaultValue) return null;
+    const d = new Date(defaultValue);
+    return Number.isNaN(d.getTime()) ? null : d;
+  });
 
   const [selected, setSelected] = useState<Date | null>(initial);
   const [time, setTime] = useState(
@@ -64,11 +68,19 @@ export function DatePicker({ name, defaultValue }: { name: string; defaultValue?
     };
   }, [open]);
 
-  const [hh, mm] = time.split(":").map(Number);
+  const timeMatch = /^(\d{2}):(\d{2})(?::\d{2})?$/.exec(time);
+  const parsedDate =
+    selected && timeMatch
+      ? new Date(
+          selected.getFullYear(),
+          selected.getMonth(),
+          selected.getDate(),
+          Number(timeMatch[1]),
+          Number(timeMatch[2]),
+        )
+      : null;
   const iso =
-    selected && !Number.isNaN(hh) && !Number.isNaN(mm)
-      ? new Date(selected.getFullYear(), selected.getMonth(), selected.getDate(), hh, mm).toISOString()
-      : "";
+    parsedDate && !Number.isNaN(parsedDate.getTime()) ? parsedDate.toISOString() : "";
 
   const year = view.getFullYear();
   const month = view.getMonth();
@@ -99,7 +111,9 @@ export function DatePicker({ name, defaultValue }: { name: string; defaultValue?
         className="flex w-full items-center justify-between gap-2 rounded-lg border border-zinc-300 px-3 py-2 text-left text-sm transition hover:border-indigo-400 dark:border-zinc-700"
       >
         <span className={selected ? "" : "text-zinc-400"}>
-          {selected ? `${displayFmt.format(selected)} · ${time}` : "Pilih tanggal & jam deadline"}
+          {selected
+            ? `${displayFmt.format(selected)} · ${time || "--:--"}`
+            : "Pilih tanggal & jam deadline"}
         </span>
         <span aria-hidden="true">📅</span>
       </button>

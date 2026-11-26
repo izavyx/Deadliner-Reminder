@@ -1,8 +1,10 @@
 import { Suspense } from "react";
 import Link from "next/link";
+import { connection } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
 async function HeaderAuthActions() {
+  await connection();
   const supabase = await createClient();
   const {
     data: { user },

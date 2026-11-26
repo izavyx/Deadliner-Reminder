@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import type { Task } from "@/lib/types";
 import { logout } from "@/app/login/actions";
@@ -11,6 +12,7 @@ function getServerTimestamp() {
 }
 
 export default async function DashboardPage() {
+  await connection();
   const supabase = await createClient();
   const {
     data: { user },
