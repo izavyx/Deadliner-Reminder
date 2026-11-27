@@ -112,10 +112,8 @@ export default function LandingPage() {
                 </span>
               </h1>
 
-              <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg">
-                Catat jadwal pengumpulan, simpan lampiran slide PPT atau modul PDF
-                langsung di tiap tugas ala Classroom, dan tak perlu lagi bongkar chat
-                WhatsApp maupun VClass saat mulai mengerjakan.
+              <p className="mx-auto mt-4 max-w-2xl font-display text-base font-bold tracking-wider text-slate-600 uppercase sm:text-lg">
+                DIJAMIN ANTI TELAT
               </p>
 
               {/* Baris Statistik Ringkas + Dual-Pill CTA ala Referensi */}
