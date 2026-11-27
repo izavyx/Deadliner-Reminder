@@ -13,8 +13,18 @@ import {
   appendTaskAttachmentsAction,
   removeTaskAttachmentAction,
 } from "@/app/dashboard/actions";
+import {
+  ArrowUpRightIcon,
+  AssignmentBoardIcon,
+  CalendarIcon,
+  CheckIcon,
+  DownloadIcon,
+  FolderUploadIcon,
+  PlusIcon,
+  TrashIcon,
+} from "@/components/icons";
 import { useToast } from "@/components/toast";
-import { Modal, Spinner, btnPrimary, btnSecondary } from "@/components/ui";
+import { Modal, Spinner, btnLime, btnPrimary, btnSecondary } from "@/components/ui";
 
 const ACCEPT_EXTENSIONS =
   "image/*,.pdf,.ppt,.pptx,.doc,.docx,.xls,.xlsx,.csv,.txt,.zip,.rar,.py,.ipynb";
@@ -39,7 +49,7 @@ function RichNotes({ text }: { text: string }) {
   const urlRegex = /(https?:\/\/[^\s]+)/g;
   const parts = text.split(urlRegex);
   return (
-    <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
+    <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-700">
       {parts.map((part, idx) =>
         /^https?:\/\//.test(part) ? (
           <a
@@ -47,7 +57,7 @@ function RichNotes({ text }: { text: string }) {
             href={part}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-medium text-indigo-600 underline decoration-indigo-400/60 underline-offset-2 hover:text-indigo-700 dark:text-indigo-400"
+            className="font-semibold text-[#2563eb] underline decoration-blue-400/60 underline-offset-2 hover:text-[#1d4ed8]"
           >
             {part}
           </a>
@@ -110,18 +120,18 @@ function AttachmentPreviewOverlay({
       role="dialog"
       aria-modal="true"
       aria-label={`Pratinjau ${current.name}`}
-      className="animate-fade-in fixed inset-0 z-50 flex flex-col bg-zinc-950/92 text-white backdrop-blur-sm"
+      className="animate-fade-in fixed inset-0 z-50 flex flex-col bg-slate-900/80 backdrop-blur-md"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      {/* Topbar Pratinjau ala Google Classroom */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-zinc-900/90 px-4 py-3">
+      {/* Topbar Pratinjau Mode Terang Bersih */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-white px-4 py-3 text-[#181b20] shadow-xs">
         <div className="flex min-w-0 items-center gap-3">
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-white/10 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-white/20"
+            className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
           >
             ← Kembali
           </button>
@@ -131,8 +141,8 @@ function AttachmentPreviewOverlay({
             {meta.short}
           </span>
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold">{current.name}</p>
-            <p className="text-[11px] text-zinc-400">
+            <p className="truncate font-display text-sm font-bold">{current.name}</p>
+            <p className="text-[11px] text-slate-500">
               {meta.label} · {formatFileSize(current.size)}
               {attachments.length > 1 && ` · File ${activeIndex + 1} dari ${attachments.length}`}
             </p>
@@ -144,21 +154,21 @@ function AttachmentPreviewOverlay({
             <button
               type="button"
               onClick={() => setZoomed((z) => !z)}
-              className="rounded-lg border border-white/15 px-2.5 py-1.5 text-xs font-medium text-zinc-200 transition hover:bg-white/10"
+              className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
             >
-              {zoomed ? "🔍 Sesuaikan Layar" : "🔍 Perbesar 100%"}
+              {zoomed ? "Sesuaikan Layar" : "Perbesar 100%"}
             </button>
           )}
 
           {canOfficeEmbed && (
-            <div className="inline-flex rounded-lg border border-white/15 bg-zinc-800/80 p-0.5 text-[11px]">
+            <div className="inline-flex rounded-full border border-slate-200 bg-slate-100 p-0.5 text-[11px]">
               <button
                 type="button"
                 onClick={() => setOfficeEngine("microsoft")}
-                className={`rounded-md px-2 py-1 font-medium transition ${
+                className={`rounded-full px-2.5 py-1 font-semibold transition ${
                   officeEngine === "microsoft"
-                    ? "bg-indigo-600 text-white"
-                    : "text-zinc-300 hover:text-white"
+                    ? "bg-[#2563eb] text-white"
+                    : "text-slate-600 hover:text-[#181b20]"
                 }`}
               >
                 Office Viewer
@@ -166,10 +176,10 @@ function AttachmentPreviewOverlay({
               <button
                 type="button"
                 onClick={() => setOfficeEngine("google")}
-                className={`rounded-md px-2 py-1 font-medium transition ${
+                className={`rounded-full px-2.5 py-1 font-semibold transition ${
                   officeEngine === "google"
-                    ? "bg-indigo-600 text-white"
-                    : "text-zinc-300 hover:text-white"
+                    ? "bg-[#2563eb] text-white"
+                    : "text-slate-600 hover:text-[#181b20]"
                 }`}
               >
                 Google Viewer
@@ -186,8 +196,8 @@ function AttachmentPreviewOverlay({
                   setZoomed(false);
                   onChangeIndex(activeIndex - 1);
                 }}
-                className="rounded-lg border border-white/15 px-2.5 py-1.5 text-xs font-medium transition hover:bg-white/10 disabled:opacity-35"
-                title="Lampiran sebelumnya (←)"
+                aria-label="Lampiran sebelumnya"
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-xs font-bold text-slate-700 transition hover:bg-slate-100 disabled:opacity-35"
               >
                 ‹
               </button>
@@ -198,8 +208,8 @@ function AttachmentPreviewOverlay({
                   setZoomed(false);
                   onChangeIndex(activeIndex + 1);
                 }}
-                className="rounded-lg border border-white/15 px-2.5 py-1.5 text-xs font-medium transition hover:bg-white/10 disabled:opacity-35"
-                title="Lampiran berikutnya (→)"
+                aria-label="Lampiran berikutnya"
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-xs font-bold text-slate-700 transition hover:bg-slate-100 disabled:opacity-35"
               >
                 ›
               </button>
@@ -212,16 +222,18 @@ function AttachmentPreviewOverlay({
                 href={signedUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-lg border border-white/15 px-3 py-1.5 text-xs font-medium text-zinc-100 transition hover:bg-white/10"
+                className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
               >
-                Buka Tab Baru ↗
+                Tab Baru
+                <ArrowUpRightIcon className="h-3.5 w-3.5" />
               </a>
               <a
                 href={`${signedUrl}${signedUrl.includes("?") ? "&" : "?"}download=${encodeURIComponent(current.name)}`}
                 download={current.name}
-                className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-indigo-500"
+                className="inline-flex items-center gap-1.5 rounded-full bg-[#bff227] px-3.5 py-1.5 text-xs font-bold text-[#181b20] transition hover:bg-[#b1e519]"
               >
-                ⬇ Unduh
+                <DownloadIcon className="h-3.5 w-3.5" />
+                Unduh
               </a>
             </>
           )}
@@ -236,11 +248,11 @@ function AttachmentPreviewOverlay({
         }}
       >
         {!signedUrl ? (
-          <div className="max-w-md rounded-2xl border border-white/10 bg-zinc-900 p-6 text-center">
-            <p className="text-sm font-medium text-zinc-200">
+          <div className="max-w-md rounded-3xl bg-white p-6 text-center shadow-xl">
+            <p className="text-sm font-semibold text-[#181b20]">
               Link pratinjau tidak tersedia atau sudah kedaluwarsa.
             </p>
-            <p className="mt-1 text-xs text-zinc-400">
+            <p className="mt-1 text-xs text-slate-500">
               Muat ulang halaman dashboard untuk memperbarui sesi file.
             </p>
           </div>
@@ -255,9 +267,9 @@ function AttachmentPreviewOverlay({
               src={signedUrl}
               alt={current.name}
               onClick={() => setZoomed((z) => !z)}
-              className={`rounded-xl bg-zinc-900 shadow-2xl transition ${
+              className={`rounded-2xl bg-white shadow-2xl transition ${
                 zoomed
-                  ? "cursor-zoom-out max-w-none"
+                  ? "max-w-none cursor-zoom-out"
                   : "max-h-[80vh] w-auto max-w-full cursor-zoom-in object-contain"
               }`}
             />
@@ -266,7 +278,7 @@ function AttachmentPreviewOverlay({
           <iframe
             src={signedUrl}
             title={current.name}
-            className="h-[80vh] w-full max-w-5xl rounded-xl border border-white/10 bg-white shadow-2xl"
+            className="h-[80vh] w-full max-w-5xl rounded-2xl border border-slate-200 bg-white shadow-2xl"
           />
         ) : canOfficeEmbed ? (
           <div className="flex h-[80vh] w-full max-w-5xl flex-col gap-2">
@@ -274,34 +286,35 @@ function AttachmentPreviewOverlay({
               key={`${current.id}-${officeEngine}`}
               src={officeEmbedUrl}
               title={current.name}
-              className="h-full w-full rounded-xl border border-white/10 bg-white shadow-2xl"
+              className="h-full w-full rounded-2xl border border-slate-200 bg-white shadow-2xl"
             />
-            <p className="text-center text-[11px] text-zinc-400">
+            <p className="text-center text-xs text-white/90">
               Jika slide/dokumen lambat dimuat, coba ganti tab <strong>Google Viewer</strong> di kanan atas atau klik <strong>Unduh</strong>.
             </p>
           </div>
         ) : (
-          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-zinc-900 p-8 text-center shadow-2xl">
+          <div className="w-full max-w-md rounded-3xl bg-white p-8 text-center shadow-2xl">
             <div
               className={`mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border text-base font-extrabold ${meta.boxClass}`}
             >
               {meta.short}
             </div>
-            <h3 className="mt-4 break-all text-base font-semibold text-white">
+            <h3 className="mt-4 break-all font-display text-base font-bold text-[#181b20]">
               {current.name}
             </h3>
-            <p className="mt-1 text-xs text-zinc-400">
+            <p className="mt-1 text-xs text-slate-500">
               {meta.label} · {formatFileSize(current.size)}
             </p>
-            <p className="mt-4 text-xs text-zinc-400">
+            <p className="mt-4 text-xs text-slate-500">
               Format file ini tidak dapat dirender langsung di browser. Silakan unduh untuk membukanya di perangkatmu.
             </p>
             <a
               href={`${signedUrl}${signedUrl.includes("?") ? "&" : "?"}download=${encodeURIComponent(current.name)}`}
               download={current.name}
-              className="mt-5 inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500"
+              className="mt-5 inline-flex items-center justify-center gap-2 rounded-full bg-[#2563eb] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1d4ed8]"
             >
-              ⬇ Unduh File Sekarang
+              <DownloadIcon className="h-4 w-4" />
+              Unduh File Sekarang
             </a>
           </div>
         )}
@@ -338,7 +351,6 @@ export function TaskDetailModal({
   const [deletingAttId, setDeletingAttId] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
-  // Optimistic / live list agar upload langsung muncul seketika di modal Classroom
   const [optimisticAdded, setOptimisticAdded] = useState<{
     taskId: string;
     items: TaskAttachment[];
@@ -454,20 +466,26 @@ export function TaskDetailModal({
             }}
             className="space-y-6"
           >
-            {/* Header Tugas bergaya Google Classroom */}
-            <div className="flex flex-col gap-4 border-b border-zinc-200 pb-5 sm:flex-row sm:items-start sm:justify-between dark:border-zinc-800">
+            {/* Header Tugas bergaya Classroom + Palet Biru & Hijau Lime */}
+            <div className="flex flex-col gap-4 border-b border-slate-100 pb-5 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex items-start gap-3.5">
                 <div
-                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-lg font-bold text-white shadow-sm ${
-                    task.is_done ? "bg-emerald-600" : "bg-indigo-600"
+                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl shadow-xs ${
+                    task.is_done
+                      ? "bg-[#bff227] text-[#181b20]"
+                      : "bg-[#2563eb] text-white"
                   }`}
                 >
-                  {task.is_done ? "✓" : "📋"}
+                  {task.is_done ? (
+                    <CheckIcon className="h-6 w-6" />
+                  ) : (
+                    <AssignmentBoardIcon className="h-6 w-6" />
+                  )}
                 </div>
                 <div className="min-w-0 space-y-1.5">
                   <div className="flex flex-wrap items-center gap-2">
                     {task.course && (
-                      <span className="rounded-md bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-700 dark:bg-indigo-950/70 dark:text-indigo-300">
+                      <span className="rounded-full bg-[#eaf1ff] px-3 py-0.5 text-xs font-semibold text-[#2563eb]">
                         {task.course}
                       </span>
                     )}
@@ -478,18 +496,19 @@ export function TaskDetailModal({
                     </span>
                   </div>
                   <h3
-                    className={`text-xl font-bold tracking-tight ${
-                      task.is_done
-                        ? "text-zinc-400 line-through"
-                        : "text-zinc-900 dark:text-zinc-50"
+                    className={`font-display text-xl font-bold tracking-tight sm:text-2xl ${
+                      task.is_done ? "text-slate-400 line-through" : "text-[#181b20]"
                     }`}
                   >
                     {task.title}
                   </h3>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                    ⏰ Tenggat pengumpulan:{" "}
-                    <span className="font-medium text-zinc-700 dark:text-zinc-300">
-                      {fullDateFmt.format(new Date(task.deadline))}
+                  <p className="inline-flex items-center gap-1.5 text-xs text-slate-500">
+                    <CalendarIcon className="h-3.5 w-3.5 text-[#2563eb]" />
+                    <span>
+                      Tenggat:{" "}
+                      <span className="font-semibold text-slate-700">
+                        {fullDateFmt.format(new Date(task.deadline))}
+                      </span>
                     </span>
                   </p>
                 </div>
@@ -503,24 +522,28 @@ export function TaskDetailModal({
                   onClick={() => onToggleDone(task)}
                   className={
                     task.is_done
-                      ? btnSecondary
-                      : "inline-flex items-center justify-center gap-1.5 rounded-lg bg-emerald-600 px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
+                      ? `${btnSecondary} !px-3.5 !py-1.5 !text-xs`
+                      : `${btnLime} !px-4 !py-1.5 !text-xs`
                   }
                 >
-                  {isToggling && <Spinner className="h-3.5 w-3.5" />}
-                  {task.is_done ? "Batalkan Selesai" : "✓ Tandai Selesai"}
+                  {isToggling ? (
+                    <Spinner className="h-3.5 w-3.5" />
+                  ) : (
+                    !task.is_done && <CheckIcon className="h-3.5 w-3.5" />
+                  )}
+                  {task.is_done ? "Batalkan Selesai" : "Tandai Selesai"}
                 </button>
                 <button
                   type="button"
                   onClick={() => onEdit(task)}
-                  className="rounded-lg border border-zinc-300 px-3 py-2 text-xs font-medium text-zinc-700 transition hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                  className="rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
                 >
                   Edit
                 </button>
                 <button
                   type="button"
                   onClick={() => onDelete(task)}
-                  className="rounded-lg border border-red-200 px-3 py-2 text-xs font-medium text-red-600 transition hover:bg-red-50 dark:border-red-900/60 dark:text-red-400 dark:hover:bg-red-950/50"
+                  className="rounded-full border border-red-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50"
                 >
                   Hapus
                 </button>
@@ -529,19 +552,19 @@ export function TaskDetailModal({
 
             {/* Bagian Deskripsi / Instruksi Tugas */}
             <div className="space-y-2">
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                Deskripsi & Instruksi Tugas
+              <h4 className="text-xs font-bold tracking-wider text-slate-400 uppercase">
+                Deskripsi &amp; Instruksi Tugas
               </h4>
-              <div className="rounded-xl border border-zinc-200/80 bg-zinc-50/60 p-4 dark:border-zinc-800 dark:bg-zinc-950/50">
+              <div className="rounded-2xl border border-slate-200/85 bg-[#f8fafd] p-4">
                 {task.notes ? (
                   <RichNotes text={task.notes} />
                 ) : (
-                  <p className="text-sm italic text-zinc-400">
+                  <p className="text-sm italic text-slate-400">
                     Belum ada catatan atau instruksi tugas. Klik tombol{" "}
                     <button
                       type="button"
                       onClick={() => onEdit(task)}
-                      className="font-medium text-indigo-600 not-italic hover:underline dark:text-indigo-400"
+                      className="font-semibold text-[#2563eb] not-italic hover:underline"
                     >
                       Edit
                     </button>{" "}
@@ -555,10 +578,10 @@ export function TaskDetailModal({
             <div className="space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
-                  <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                    Lampiran Materi & Soal ({attachments.length})
+                  <h4 className="text-xs font-bold tracking-wider text-slate-400 uppercase">
+                    Lampiran Materi &amp; Soal ({attachments.length})
                   </h4>
-                  <p className="text-[11px] text-zinc-500">
+                  <p className="text-xs text-slate-500">
                     Simpan soal, slide PPT, atau PDF di sini agar tidak perlu mencari lagi di WhatsApp / VClass.
                   </p>
                 </div>
@@ -578,7 +601,7 @@ export function TaskDetailModal({
                     type="button"
                     disabled={uploading}
                     onClick={() => fileInputRef.current?.click()}
-                    className={`${btnPrimary} !px-3 !py-1.5 !text-xs`}
+                    className={`${btnPrimary} !min-h-9 !px-4 !py-1.5 !text-xs`}
                   >
                     {uploading ? (
                       <>
@@ -586,7 +609,10 @@ export function TaskDetailModal({
                         Mengunggah...
                       </>
                     ) : (
-                      "+ Lampirkan File"
+                      <>
+                        <PlusIcon className="h-3.5 w-3.5" />
+                        Lampirkan File
+                      </>
                     )}
                   </button>
                 </div>
@@ -597,18 +623,21 @@ export function TaskDetailModal({
                   onClick={() => {
                     if (!uploading) fileInputRef.current?.click();
                   }}
-                  className={`cursor-pointer rounded-2xl border-2 border-dashed p-6 text-center transition ${
+                  className={`cursor-pointer rounded-2xl border-2 border-dashed p-7 text-center transition ${
                     dragOver
-                      ? "border-indigo-500 bg-indigo-50/70 dark:bg-indigo-950/40"
-                      : "border-zinc-200 hover:border-indigo-400 hover:bg-zinc-50/60 dark:border-zinc-800 dark:hover:border-indigo-500 dark:hover:bg-zinc-800/30"
+                      ? "border-[#2563eb] bg-[#eaf1ff]/70"
+                      : "border-slate-200 bg-slate-50/50 hover:border-[#2563eb] hover:bg-[#f4f8ff]"
                   }`}
                 >
-                  <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                    📂 Belum ada materi atau soal terlampir
+                  <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-2xl bg-[#eaf1ff] text-[#2563eb]">
+                    <FolderUploadIcon className="h-5 w-5" />
+                  </span>
+                  <p className="mt-3 text-sm font-semibold text-[#181b20]">
+                    Belum ada materi atau soal terlampir
                   </p>
-                  <p className="mt-1 text-xs text-zinc-500">
+                  <p className="mt-1 text-xs text-slate-500">
                     Klik untuk mengunggah Gambar, PDF, atau PPT — atau langsung{" "}
-                    <kbd className="rounded border border-zinc-300 bg-zinc-100 px-1.5 py-0.5 text-[10px] dark:border-zinc-700 dark:bg-zinc-800">
+                    <kbd className="rounded border border-slate-300 bg-white px-1.5 py-0.5 text-[10px] font-semibold">
                       Ctrl+V
                     </kbd>{" "}
                     screenshot soal di sini.
@@ -617,7 +646,7 @@ export function TaskDetailModal({
               ) : (
                 <div
                   className={`grid gap-3 sm:grid-cols-2 ${
-                    dragOver ? "rounded-2xl ring-2 ring-indigo-500 ring-offset-2" : ""
+                    dragOver ? "rounded-2xl ring-2 ring-[#2563eb] ring-offset-2" : ""
                   }`}
                 >
                   {attachments.map((att, idx) => {
@@ -637,10 +666,10 @@ export function TaskDetailModal({
                             setPreviewIdx(idx);
                           }
                         }}
-                        className="group flex cursor-pointer items-stretch overflow-hidden rounded-xl border border-zinc-200 bg-white text-left shadow-xs transition hover:border-indigo-400 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-indigo-500/70"
+                        className="group flex cursor-pointer items-stretch overflow-hidden rounded-2xl border border-slate-200 bg-white text-left transition hover:border-[#2563eb] hover:shadow-md hover:shadow-blue-950/5"
                       >
                         {/* Thumbnail Kiri ala Kartu Classroom */}
-                        <div className="flex w-20 shrink-0 items-center justify-center border-r border-zinc-200 bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-950">
+                        <div className="flex w-20 shrink-0 items-center justify-center border-r border-slate-100 bg-slate-50">
                           {cat === "image" && att.signed_url ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
@@ -661,16 +690,17 @@ export function TaskDetailModal({
                         <div className="flex min-w-0 flex-1 items-center justify-between gap-2 p-3">
                           <div className="min-w-0">
                             <p
-                              className="truncate text-sm font-semibold text-zinc-800 group-hover:text-indigo-600 dark:text-zinc-100 dark:group-hover:text-indigo-400"
+                              className="truncate text-sm font-semibold text-[#181b20] group-hover:text-[#2563eb]"
                               title={att.name}
                             >
                               {att.name}
                             </p>
-                            <p className="mt-0.5 text-[11px] text-zinc-500">
+                            <p className="mt-0.5 text-[11px] text-slate-500">
                               {meta.label} · {formatFileSize(att.size)}
                             </p>
-                            <span className="mt-1 inline-block text-[11px] font-medium text-indigo-600 dark:text-indigo-400">
-                              Klik untuk preview →
+                            <span className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-[#2563eb]">
+                              Buka preview
+                              <ArrowUpRightIcon className="h-3 w-3" />
                             </span>
                           </div>
 
@@ -683,20 +713,26 @@ export function TaskDetailModal({
                               <a
                                 href={`${att.signed_url}${att.signed_url.includes("?") ? "&" : "?"}download=${encodeURIComponent(att.name)}`}
                                 download={att.name}
+                                aria-label={`Unduh ${att.name}`}
                                 title="Unduh lampiran"
-                                className="rounded-lg p-1.5 text-xs text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+                                className="rounded-full p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-[#2563eb]"
                               >
-                                ⬇
+                                <DownloadIcon className="h-4 w-4" />
                               </a>
                             )}
                             <button
                               type="button"
                               disabled={isRemoving}
                               onClick={() => handleRemoveAttachment(att)}
+                              aria-label={`Hapus ${att.name}`}
                               title="Hapus lampiran"
-                              className="rounded-lg p-1.5 text-xs text-zinc-400 transition hover:bg-red-50 hover:text-red-600 disabled:opacity-50 dark:hover:bg-red-950/50 dark:hover:text-red-400"
+                              className="rounded-full p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
                             >
-                              {isRemoving ? <Spinner className="h-3.5 w-3.5" /> : "🗑"}
+                              {isRemoving ? (
+                                <Spinner className="h-3.5 w-3.5" />
+                              ) : (
+                                <TrashIcon className="h-4 w-4" />
+                              )}
                             </button>
                           </div>
                         </div>
@@ -710,7 +746,6 @@ export function TaskDetailModal({
         )}
       </Modal>
 
-      {/* Lightbox Previewer Layar Penuh ala Google Classroom */}
       {previewIdx !== null && attachments[previewIdx] && (
         <AttachmentPreviewOverlay
           attachments={attachments}

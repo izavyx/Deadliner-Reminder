@@ -25,23 +25,22 @@ export function useToast(): ToastFn {
 
 const STYLES: Record<ToastType, { box: string; icon: string; symbol: string }> = {
   success: {
-    box: "border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-100",
-    icon: "bg-emerald-500",
+    box: "border-[#a3e635] bg-white text-[#181b20]",
+    icon: "bg-[#bff227] text-[#181b20]",
     symbol: "✓",
   },
   error: {
-    box: "border-red-200 bg-red-50 text-red-900 dark:border-red-900 dark:bg-red-950 dark:text-red-100",
-    icon: "bg-red-500",
+    box: "border-red-200 bg-white text-red-950",
+    icon: "bg-red-500 text-white",
     symbol: "!",
   },
   info: {
-    box: "border-indigo-200 bg-indigo-50 text-indigo-900 dark:border-indigo-900 dark:bg-indigo-950 dark:text-indigo-100",
-    icon: "bg-indigo-500",
+    box: "border-blue-200 bg-white text-slate-900",
+    icon: "bg-[#2563eb] text-white",
     symbol: "i",
   },
 };
 
-// Pesan "flash" yang dikirim server lewat cookie singkat (mis. setelah login/logout redirect).
 const FLASH: Record<string, [ToastType, string]> = {
   login: ["success", "Berhasil masuk. Selamat datang!"],
   register: ["success", "Akun berhasil dibuat. Selamat datang!"],
@@ -96,19 +95,19 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             <div
               key={t.id}
               role={t.type === "error" ? "alert" : "status"}
-              className={`animate-toast-in pointer-events-auto flex items-start gap-3 rounded-xl border p-3 shadow-lg ${s.box}`}
+              className={`animate-toast-in pointer-events-auto flex items-start gap-3 rounded-2xl border p-3.5 shadow-xl shadow-slate-900/10 ${s.box}`}
             >
               <span
-                className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white ${s.icon}`}
+                className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-extrabold ${s.icon}`}
               >
                 {s.symbol}
               </span>
-              <p className="flex-1 text-sm">{t.message}</p>
+              <p className="flex-1 text-sm font-medium">{t.message}</p>
               <button
                 type="button"
                 onClick={() => dismiss(t.id)}
                 aria-label="Tutup notifikasi"
-                className="text-sm opacity-60 hover:opacity-100"
+                className="rounded-full px-1 text-sm text-slate-400 hover:text-slate-800"
               >
                 ✕
               </button>

@@ -9,6 +9,7 @@ import {
   removeStoragePathsClient,
   uploadTaskFiles,
 } from "@/lib/attachments";
+import { PaperclipIcon } from "@/components/icons";
 import { useToast } from "@/components/toast";
 import { Spinner } from "@/components/ui";
 
@@ -50,10 +51,7 @@ export function AttachmentField({
       if (uploaded.length > 0) {
         setItems((prev) => [...prev, ...uploaded]);
         setDirty(true);
-        toast(
-          "success",
-          `${uploaded.length} lampiran siap disimpan.`,
-        );
+        toast("success", `${uploaded.length} lampiran siap disimpan.`);
       }
     } catch {
       toast("error", "Gagal mengunggah lampiran. Periksa koneksi internetmu.");
@@ -67,8 +65,6 @@ export function AttachmentField({
     setItems((prev) => prev.filter((x) => x.id !== target.id));
     setDirty(true);
 
-    // Jika file sudah berasal dari tugas lama di DB, hapus saat form disubmit.
-    // Jika baru diunggah pada sesi modal ini, bersihkan langsung dari Storage.
     if (initialIds.current.has(target.id)) {
       setRemovedPaths((prev) => [...prev, target.path]);
     } else {
@@ -115,17 +111,17 @@ export function AttachmentField({
       <input type="hidden" name="removed_paths" value={JSON.stringify(removedPaths)} />
 
       <div className="flex items-center justify-between">
-        <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+        <span className="block text-xs font-semibold text-slate-600">
           Lampiran Materi / Soal (Gambar, PDF, PPT, Word)
-        </label>
+        </span>
         {items.length > 0 && (
-          <span className="text-[11px] font-medium text-indigo-600 dark:text-indigo-400">
+          <span className="rounded-full bg-[#eaf1ff] px-2.5 py-0.5 text-[11px] font-semibold text-[#2563eb]">
             {items.length} file terlampir
           </span>
         )}
       </div>
 
-      {/* Dropzone ala Google Classroom */}
+      {/* Dropzone Mode Terang Biru-Hijau */}
       <div
         onDragOver={(e) => {
           e.preventDefault();
@@ -142,10 +138,10 @@ export function AttachmentField({
         onClick={() => {
           if (!uploading) fileInputRef.current?.click();
         }}
-        className={`cursor-pointer rounded-xl border-2 border-dashed px-4 py-3.5 text-center transition ${
+        className={`cursor-pointer rounded-2xl border-2 border-dashed px-4 py-4 text-center transition ${
           dragOver
-            ? "border-indigo-500 bg-indigo-50/70 dark:bg-indigo-950/40"
-            : "border-zinc-300 hover:border-indigo-400 hover:bg-zinc-50/70 dark:border-zinc-700 dark:hover:border-indigo-500 dark:hover:bg-zinc-800/40"
+            ? "border-[#2563eb] bg-[#eaf1ff]/70"
+            : "border-slate-200 bg-slate-50/60 hover:border-[#2563eb] hover:bg-[#f4f8ff]"
         }`}
       >
         <input
@@ -160,27 +156,29 @@ export function AttachmentField({
         />
 
         {uploading ? (
-          <div className="inline-flex items-center gap-2 text-xs font-medium text-indigo-600 dark:text-indigo-400">
+          <div className="inline-flex items-center gap-2 text-xs font-semibold text-[#2563eb]">
             <Spinner className="h-4 w-4" />
             <span>Mengunggah file ke ruang tugas...</span>
           </div>
         ) : (
-          <div className="space-y-0.5">
-            <p className="text-xs font-medium text-zinc-700 dark:text-zinc-200">
-              📎 Klik untuk pilih file, tarik ke sini, atau{" "}
-              <kbd className="rounded border border-zinc-300 bg-zinc-100 px-1 py-0.5 text-[10px] dark:border-zinc-700 dark:bg-zinc-800">
-                Ctrl+V
-              </kbd>{" "}
-              screenshot
+          <div className="space-y-1">
+            <p className="inline-flex items-center justify-center gap-1.5 text-xs font-semibold text-[#181b20]">
+              <PaperclipIcon className="h-3.5 w-3.5 text-[#2563eb]" />
+              <span>
+                Klik pilih file, tarik ke sini, atau{" "}
+                <kbd className="rounded border border-slate-300 bg-white px-1.5 py-0.5 text-[10px]">
+                  Ctrl+V
+                </kbd>{" "}
+                screenshot
+              </span>
             </p>
-            <p className="text-[11px] text-zinc-500">
+            <p className="text-[11px] text-slate-500">
               Mendukung Gambar, PDF, PPT/PPTX, DOCX, XLSX (maks. 50 MB/file)
             </p>
           </div>
         )}
       </div>
 
-      {/* Daftar chip lampiran */}
       {items.length > 0 && (
         <ul className="grid gap-2">
           {items.map((att) => {
@@ -189,7 +187,7 @@ export function AttachmentField({
             return (
               <li
                 key={att.id}
-                className="flex items-center justify-between gap-2.5 rounded-xl border border-zinc-200 bg-zinc-50/70 p-2 dark:border-zinc-800 dark:bg-zinc-950/50"
+                className="flex items-center justify-between gap-2.5 rounded-xl border border-slate-200 bg-white p-2"
               >
                 <div className="flex min-w-0 items-center gap-2.5">
                   {cat === "image" && att.signed_url ? (
@@ -197,7 +195,7 @@ export function AttachmentField({
                     <img
                       src={att.signed_url}
                       alt={att.name}
-                      className="h-9 w-9 shrink-0 rounded-lg border border-zinc-200 object-cover dark:border-zinc-700"
+                      className="h-9 w-9 shrink-0 rounded-lg border border-slate-200 object-cover"
                     />
                   ) : (
                     <span
@@ -207,10 +205,10 @@ export function AttachmentField({
                     </span>
                   )}
                   <div className="min-w-0">
-                    <p className="truncate text-xs font-medium text-zinc-800 dark:text-zinc-100">
+                    <p className="truncate text-xs font-semibold text-[#181b20]">
                       {att.name}
                     </p>
-                    <p className="text-[11px] text-zinc-500">
+                    <p className="text-[11px] text-slate-500">
                       {meta.label} · {formatFileSize(att.size)}
                     </p>
                   </div>
@@ -220,7 +218,7 @@ export function AttachmentField({
                   type="button"
                   onClick={() => void handleRemove(att)}
                   aria-label={`Hapus ${att.name}`}
-                  className="shrink-0 rounded-lg p-1.5 text-xs text-zinc-400 transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/50 dark:hover:text-red-400"
+                  className="shrink-0 rounded-full p-1.5 text-xs text-slate-400 transition hover:bg-red-50 hover:text-red-600"
                 >
                   ✕
                 </button>

@@ -4,16 +4,19 @@ import { useEffect } from "react";
 import { useFormStatus } from "react-dom";
 
 export const inputClass =
-  "w-full rounded-lg border border-zinc-300 bg-transparent px-3 py-2 text-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-zinc-700";
+  "w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-[#181b20] placeholder:text-slate-400 outline-none transition focus:border-[#2563eb] focus:ring-3 focus:ring-[#2563eb]/15";
 
 export const btnPrimary =
-  "inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-[#2563eb] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#1d4ed8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563eb] disabled:cursor-not-allowed disabled:opacity-60";
+
+export const btnLime =
+  "inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-[#bff227] px-5 py-2 text-sm font-semibold text-[#181b20] transition hover:bg-[#b1e519] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563eb] disabled:cursor-not-allowed disabled:opacity-60";
 
 export const btnSecondary =
-  "inline-flex items-center justify-center gap-2 rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-zinc-700 dark:hover:bg-zinc-900";
+  "inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563eb] disabled:cursor-not-allowed disabled:opacity-60";
 
 export const btnDanger =
-  "inline-flex items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-red-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-red-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 disabled:cursor-not-allowed disabled:opacity-60";
 
 export function Spinner({ className = "h-4 w-4" }: { className?: string }) {
   return (
@@ -96,21 +99,23 @@ export function Modal({
       role="dialog"
       aria-modal="true"
       aria-label={title}
-      className="animate-fade-in fixed inset-0 z-40 flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center"
+      className="animate-fade-in fixed inset-0 z-40 flex items-start justify-center overflow-y-auto bg-slate-900/35 p-4 backdrop-blur-[2px] sm:items-center"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
-        className={`animate-modal-in my-8 w-full ${maxWidthClass} rounded-2xl bg-white p-6 shadow-xl dark:bg-zinc-900`}
+        className={`animate-modal-in my-8 w-full ${maxWidthClass} rounded-3xl border border-slate-200/90 bg-white p-6 shadow-2xl shadow-slate-900/10`}
       >
-        <div className="mb-4 flex items-start justify-between gap-4">
-          <h2 className="text-lg font-semibold">{title}</h2>
+        <div className="mb-5 flex items-center justify-between gap-4">
+          <h2 className="font-display text-lg font-bold tracking-tight text-[#181b20]">
+            {title}
+          </h2>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Tutup"
-            className="rounded-lg p-1 text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+            aria-label="Tutup dialog"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-sm text-slate-500 transition hover:bg-[#bff227] hover:text-[#181b20]"
           >
             ✕
           </button>

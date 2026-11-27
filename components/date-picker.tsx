@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { CalendarIcon } from "@/components/icons";
 
 const MONTHS = [
   "Januari", "Februari", "Maret", "April", "Mei", "Juni",
@@ -53,7 +54,6 @@ export function DatePicker({ name, defaultValue }: { name: string; defaultValue?
     const onDown = (e: MouseEvent) => {
       if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false);
     };
-    // Escape menutup kalender saja, tidak ikut menutup modal di belakangnya.
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         e.stopPropagation();
@@ -84,7 +84,7 @@ export function DatePicker({ name, defaultValue }: { name: string; defaultValue?
 
   const year = view.getFullYear();
   const month = view.getMonth();
-  const leading = (view.getDay() + 6) % 7; // minggu dimulai Senin
+  const leading = (view.getDay() + 6) % 7;
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const cells: (Date | null)[] = [
     ...Array<null>(leading).fill(null),
@@ -108,17 +108,16 @@ export function DatePicker({ name, defaultValue }: { name: string; defaultValue?
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="dialog"
         aria-expanded={open}
-        className="flex w-full items-center justify-between gap-2 rounded-lg border border-zinc-300 px-3 py-2 text-left text-sm transition hover:border-indigo-400 dark:border-zinc-700"
+        className="flex w-full items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-left text-sm transition hover:border-[#2563eb]"
       >
-        <span className={selected ? "" : "text-zinc-400"}>
+        <span className={selected ? "text-[#181b20]" : "text-slate-400"}>
           {selected
             ? `${displayFmt.format(selected)} · ${time || "--:--"}`
             : "Pilih tanggal & jam deadline"}
         </span>
-        <span aria-hidden="true">📅</span>
+        <CalendarIcon className="h-4 w-4 shrink-0 text-[#2563eb]" />
       </button>
 
-      {/* Input bernama: menyimpan nilai & memicu validasi "required" bawaan browser */}
       <input
         name={name}
         value={iso}
@@ -133,31 +132,31 @@ export function DatePicker({ name, defaultValue }: { name: string; defaultValue?
         <div
           role="dialog"
           aria-label="Kalender"
-          className="animate-fade-in absolute left-0 z-50 mt-2 w-full min-w-72 rounded-xl border border-zinc-200 bg-white p-3 shadow-xl dark:border-zinc-700 dark:bg-zinc-900"
+          className="animate-fade-in absolute left-0 z-50 mt-2 w-full min-w-72 rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xl shadow-slate-900/10"
         >
           <div className="mb-2 flex items-center justify-between">
             <button
               type="button"
               onClick={() => setView(new Date(year, month - 1, 1))}
               aria-label="Bulan sebelumnya"
-              className="rounded-md px-2 py-1 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-slate-100"
             >
               ‹
             </button>
-            <span className="text-sm font-semibold">
+            <span className="font-display text-sm font-bold text-[#181b20]">
               {MONTHS[month]} {year}
             </span>
             <button
               type="button"
               onClick={() => setView(new Date(year, month + 1, 1))}
               aria-label="Bulan berikutnya"
-              className="rounded-md px-2 py-1 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-slate-100"
             >
               ›
             </button>
           </div>
 
-          <div className="grid grid-cols-7 gap-1 text-center text-xs text-zinc-500">
+          <div className="grid grid-cols-7 gap-1 text-center text-xs text-slate-500">
             {WEEKDAYS.map((d) => (
               <div key={d} className="py-1 font-medium">
                 {d}
@@ -176,12 +175,12 @@ export function DatePicker({ name, defaultValue }: { name: string; defaultValue?
                   type="button"
                   onClick={() => pick(date)}
                   aria-pressed={isSelected}
-                  className={`h-8 rounded-md text-sm transition ${
+                  className={`h-8 rounded-lg text-sm transition ${
                     isSelected
-                      ? "bg-indigo-600 font-semibold text-white"
+                      ? "bg-[#2563eb] font-semibold text-white"
                       : isToday
-                        ? "border border-indigo-400 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950"
-                        : "hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                        ? "bg-[#f2fcd4] font-semibold text-[#181b20] ring-1 ring-[#a3e635] hover:bg-[#e5f9b0]"
+                        : "text-slate-700 hover:bg-slate-100"
                   }`}
                 >
                   {date.getDate()}
@@ -200,15 +199,15 @@ export function DatePicker({ name, defaultValue }: { name: string; defaultValue?
                 key={label}
                 type="button"
                 onClick={() => quick(days as number)}
-                className="rounded-full border border-zinc-200 px-2.5 py-1 text-xs hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
+                className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700 transition hover:border-[#2563eb] hover:bg-[#eaf1ff] hover:text-[#2563eb]"
               >
                 {label}
               </button>
             ))}
           </div>
 
-          <div className="mt-3 flex items-center gap-2 border-t border-zinc-200 pt-3 dark:border-zinc-700">
-            <label htmlFor={`${name}-time`} className="text-xs text-zinc-500">
+          <div className="mt-3 flex items-center gap-2 border-t border-slate-100 pt-3">
+            <label htmlFor={`${name}-time`} className="text-xs font-medium text-slate-500">
               Jam
             </label>
             <input
@@ -216,12 +215,12 @@ export function DatePicker({ name, defaultValue }: { name: string; defaultValue?
               type="time"
               value={time}
               onChange={(e) => setTime(e.target.value)}
-              className="rounded-md border border-zinc-300 bg-transparent px-2 py-1 text-sm dark:border-zinc-700"
+              className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-sm text-[#181b20] outline-none focus:border-[#2563eb]"
             />
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="ml-auto rounded-md bg-indigo-600 px-3 py-1 text-xs font-medium text-white hover:bg-indigo-700"
+              className="ml-auto rounded-full bg-[#bff227] px-3.5 py-1 text-xs font-semibold text-[#181b20] transition hover:bg-[#b1e519]"
             >
               Selesai
             </button>

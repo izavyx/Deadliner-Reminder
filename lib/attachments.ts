@@ -68,43 +68,37 @@ export function getFileBadgeMeta(category: FileCategory) {
       return {
         label: "Gambar",
         short: "IMG",
-        boxClass:
-          "bg-violet-100 text-violet-700 border-violet-200 dark:bg-violet-950/70 dark:text-violet-300 dark:border-violet-900",
+        boxClass: "bg-[#eaf1ff] text-[#1d4ed8] border-blue-200",
       };
     case "pdf":
       return {
         label: "Dokumen PDF",
         short: "PDF",
-        boxClass:
-          "bg-red-100 text-red-700 border-red-200 dark:bg-red-950/70 dark:text-red-300 dark:border-red-900",
+        boxClass: "bg-red-50 text-red-700 border-red-200",
       };
     case "ppt":
       return {
         label: "Presentasi PPT",
         short: "PPT",
-        boxClass:
-          "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950/70 dark:text-amber-300 dark:border-amber-900",
+        boxClass: "bg-amber-50 text-amber-800 border-amber-200",
       };
     case "doc":
       return {
         label: "Dokumen Word",
         short: "DOC",
-        boxClass:
-          "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-950/70 dark:text-blue-300 dark:border-blue-900",
+        boxClass: "bg-sky-50 text-sky-700 border-sky-200",
       };
     case "sheet":
       return {
         label: "Spreadsheet",
         short: "XLS",
-        boxClass:
-          "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-950/70 dark:text-emerald-300 dark:border-emerald-900",
+        boxClass: "bg-[#f2fcd4] text-[#365314] border-[#bef264]",
       };
     default:
       return {
         label: "Berkas Lampiran",
         short: "FILE",
-        boxClass:
-          "bg-zinc-100 text-zinc-700 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:border-zinc-700",
+        boxClass: "bg-slate-100 text-slate-700 border-slate-200",
       };
   }
 }

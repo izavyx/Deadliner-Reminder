@@ -1,28 +1,44 @@
 @import "tailwindcss";
 
+/* Mode terang dikunci agar selalu konsisten sesuai referensi */
+@custom-variant dark (&:where(.never-dark-mode, .never-dark-mode *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+  --background: #f6f8fb;
+  --foreground: #181b20;
+  --surface: #ffffff;
+  --brand-blue: #2563eb;
+  --brand-blue-dark: #1d4ed8;
+  --brand-blue-soft: #eaf1ff;
+  --brand-lime: #bff227;
+  --brand-lime-hover: #b1e519;
+  --brand-lime-soft: #f2fcd4;
+  --border-subtle: #e2e8f0;
+  --muted-text: #556070;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-outfit), var(--font-plus-jakarta), sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: light;
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+}
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-heading);
 }
 
 @keyframes toast-in {
@@ -38,6 +54,8 @@ body {
   to { opacity: 1; }
 }
 
-.animate-toast-in { animation: toast-in 0.2s ease-out; }
-.animate-modal-in { animation: modal-in 0.2s ease-out; }
-.animate-fade-in { animation: fade-in 0.15s ease-out; }
+@media (prefers-reduced-motion: no-preference) {
+  .animate-toast-in { animation: toast-in 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+  .animate-modal-in { animation: modal-in 0.22s cubic-bezier(0.16, 1, 0.3, 1); }
+  .animate-fade-in { animation: fade-in 0.16s ease-out; }
+}

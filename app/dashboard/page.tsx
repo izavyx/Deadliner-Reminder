@@ -4,7 +4,8 @@ import { connection } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import type { Task } from "@/lib/types";
 import { logout } from "@/app/login/actions";
-import { SubmitButton, btnSecondary } from "@/components/ui";
+import { BrandLogo } from "@/components/site-header";
+import { SubmitButton } from "@/components/ui";
 import { TaskManager } from "./task-manager";
 
 const ATTACHMENT_BUCKET = "task-attachments";
@@ -67,49 +68,45 @@ export default async function DashboardPage() {
     (user.user_metadata?.full_name as string | undefined) ?? user.email;
 
   return (
-    <div className="min-h-full bg-zinc-50/60 dark:bg-zinc-950">
-      {/* Header Dashboard */}
-      <header className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
-          <div className="flex items-center gap-3">
-            <Link
-              href="/"
-              className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 font-bold text-white shadow-sm"
-            >
-              D
-            </Link>
-            <div>
-              <h1 className="text-lg font-bold tracking-tight">
-                Dashboard Deadliner
-              </h1>
-              <p className="text-xs text-zinc-500">
-                Halo,{" "}
-                <span className="font-medium text-zinc-700 dark:text-zinc-300">
-                  {displayName}
-                </span>
-              </p>
+    <div className="min-h-full">
+      {/* Header Dashboard Simpel & Minimalis */}
+      <header className="sticky top-0 z-30 bg-[#f6f8fb]/85 backdrop-blur-md">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="flex items-center justify-between gap-4 border-b border-slate-200/85 py-4">
+            <div className="flex items-center gap-7">
+              <BrandLogo href="/dashboard" />
+              <nav
+                aria-label="Navigasi Dashboard"
+                className="hidden items-center gap-5 text-xs font-semibold tracking-wider text-slate-500 uppercase sm:flex"
+              >
+                <Link href="/" className="transition hover:text-[#2563eb]">
+                  Beranda
+                </Link>
+                <span className="text-[#2563eb]">Ruang Tugas</span>
+              </nav>
             </div>
-          </div>
 
-          <div className="flex items-center gap-3">
-            <Link
-              href="/"
-              className="hidden text-xs font-medium text-zinc-500 hover:text-indigo-600 sm:inline"
-            >
-              Beranda
-            </Link>
-            <form action={logout}>
-              <SubmitButton pendingText="Keluar..." className={btnSecondary}>
-                Keluar
-              </SubmitButton>
-            </form>
+            <div className="flex items-center gap-2.5">
+              <span className="hidden max-w-48 items-center gap-2 truncate rounded-full border border-slate-200/90 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 sm:inline-flex">
+                <span className="h-2 w-2 shrink-0 rounded-full bg-[#84cc16]" />
+                <span className="truncate">{displayName}</span>
+              </span>
+              <form action={logout}>
+                <SubmitButton
+                  pendingText="Keluar..."
+                  className="inline-flex min-h-8 items-center justify-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 disabled:opacity-60"
+                >
+                  Keluar
+                </SubmitButton>
+              </form>
+            </div>
           </div>
         </div>
       </header>
 
       <main className="mx-auto max-w-6xl px-4 py-8">
         {error && (
-          <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-200">
+          <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
             Gagal mengambil data: {error.message}. Pastikan{" "}
             <code>supabase/schema.sql</code>, <code>supabase/auth.sql</code>, dan{" "}
             <code>supabase/attachments.sql</code> sudah dijalankan di Supabase SQL Editor.
