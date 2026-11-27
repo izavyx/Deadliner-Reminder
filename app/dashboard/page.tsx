@@ -7,6 +7,8 @@ import { logout } from "@/app/login/actions";
 import { SubmitButton, btnSecondary } from "@/components/ui";
 import { TaskManager } from "./task-manager";
 
+const ATTACHMENT_BUCKET = "task-attachments";
+
 function getServerTimestamp() {
   return Date.now();
 }
@@ -27,7 +29,40 @@ export default async function DashboardPage() {
     .order("is_done", { ascending: true })
     .order("deadline", { ascending: true });
 
-  const tasks = (data ?? []) as Task[];
+  const rawTasks = (data ?? []) as Task[];
+
+  // Buat signed URL secara batch untuk seluruh lampiran tugas milik user
+  const allPaths: string[] = [];
+  for (const t of rawTasks) {
+    if (Array.isArray(t.attachments)) {
+      for (const att of t.attachments) {
+        if (att?.path) allPaths.push(att.path);
+      }
+    }
+  }
+
+  const signedMap = new Map<string, string>();
+  if (allPaths.length > 0) {
+    const { data: signedList } = await supabase.storage
+      .from(ATTACHMENT_BUCKET)
+      .createSignedUrls(allPaths, 60 * 60 * 12);
+    for (const item of signedList ?? []) {
+      if (item.path && item.signedUrl) {
+        signedMap.set(item.path, item.signedUrl);
+      }
+    }
+  }
+
+  const tasks: Task[] = rawTasks.map((t) => ({
+    ...t,
+    attachments: Array.isArray(t.attachments)
+      ? t.attachments.map((att) => ({
+          ...att,
+          signed_url: signedMap.get(att.path) ?? att.signed_url,
+        }))
+      : [],
+  }));
+
   const displayName =
     (user.user_metadata?.full_name as string | undefined) ?? user.email;
 
@@ -48,7 +83,10 @@ export default async function DashboardPage() {
                 Dashboard Deadliner
               </h1>
               <p className="text-xs text-zinc-500">
-                Halo, <span className="font-medium text-zinc-700 dark:text-zinc-300">{displayName}</span>
+                Halo,{" "}
+                <span className="font-medium text-zinc-700 dark:text-zinc-300">
+                  {displayName}
+                </span>
               </p>
             </div>
           </div>
@@ -73,12 +111,12 @@ export default async function DashboardPage() {
         {error && (
           <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-200">
             Gagal mengambil data: {error.message}. Pastikan{" "}
-            <code>supabase/schema.sql</code> dan <code>supabase/auth.sql</code>{" "}
-            sudah dijalankan di Supabase SQL Editor.
+            <code>supabase/schema.sql</code>, <code>supabase/auth.sql</code>, dan{" "}
+            <code>supabase/attachments.sql</code> sudah dijalankan di Supabase SQL Editor.
           </div>
         )}
 
-        <TaskManager tasks={tasks} serverNow={serverNow} />
+        <TaskManager tasks={tasks} serverNow={serverNow} userId={user.id} />
       </main>
     </div>
   );

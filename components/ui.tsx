@@ -33,15 +33,18 @@ export function Spinner({ className = "h-4 w-4" }: { className?: string }) {
 export function SubmitButton({
   children,
   pendingText,
+  disabled = false,
   className = btnPrimary,
 }: {
   children: React.ReactNode;
   pendingText?: string;
+  disabled?: boolean;
   className?: string;
 }) {
   const { pending } = useFormStatus();
+  const isDisabled = pending || disabled;
   return (
-    <button type="submit" disabled={pending} aria-busy={pending} className={className}>
+    <button type="submit" disabled={isDisabled} aria-busy={pending} className={className}>
       {pending && <Spinner />}
       {pending ? (pendingText ?? children) : children}
     </button>
@@ -62,15 +65,19 @@ export function Modal({
   open,
   onClose,
   title,
+  maxWidthClass = "max-w-md",
+  disableEscape = false,
   children,
 }: {
   open: boolean;
   onClose: () => void;
   title: string;
+  maxWidthClass?: string;
+  disableEscape?: boolean;
   children: React.ReactNode;
 }) {
   useEffect(() => {
-    if (!open) return;
+    if (!open || disableEscape) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
@@ -80,7 +87,7 @@ export function Modal({
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
     };
-  }, [open, onClose]);
+  }, [open, onClose, disableEscape]);
 
   if (!open) return null;
 
@@ -94,14 +101,16 @@ export function Modal({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="animate-modal-in my-8 w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-zinc-900">
+      <div
+        className={`animate-modal-in my-8 w-full ${maxWidthClass} rounded-2xl bg-white p-6 shadow-xl dark:bg-zinc-900`}
+      >
         <div className="mb-4 flex items-start justify-between gap-4">
           <h2 className="text-lg font-semibold">{title}</h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Tutup"
-            className="text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+            className="rounded-lg p-1 text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
           >
             ✕
           </button>

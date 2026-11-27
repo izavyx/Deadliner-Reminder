@@ -6,6 +6,7 @@ Aplikasi web berbasis **Next.js (App Router)** dan **Supabase** dengan konsep *T
 - **Landing Page Modern (`/`)** — Informasi fitur dan alur penggunaan.
 - **Autentikasi Pengguna (`/login` & `/register`)** — Supabase Auth berbasis sesi cookie dengan proteksi Row Level Security (RLS) per akun.
 - **Tabel Tugas Full CRUD (`/dashboard`)** — Tambah, lihat, filter, cari, edit, centang selesai, dan hapus tugas.
+- **Ruang Detail & Preview Lampiran ala Google Classroom** — Klik baris tugas di tabel/kalender untuk membuka pop-up deskripsi lengkap beserta lampiran materi/soal (Gambar, PDF, PPT/PPTX, DOCX, XLSX) dengan fitur *drag & drop*, *paste screenshot* (`Ctrl+V`), dan *in-app previewer*.
 - **Pemilih Tanggal Kalender & Mode Kalender Bulanan** — Input tanggal/jam interaktif beserta pintasan cepat.
 - **Indikator Loading & Notifikasi Pop-up (Toast + Modal)** — Umpan balik instan di setiap aksi pengguna.
 
@@ -28,6 +29,7 @@ Aplikasi web berbasis **Next.js (App Router)** dan **Supabase** dengan konsep *T
    - `supabase/schema.sql`
    - `supabase/auth.sql`
    - `supabase/profiles.sql`
+   - `supabase/attachments.sql` *(untuk kolom lampiran & bucket Storage `task-attachments`)*
    - *(Opsional untuk testing)* `supabase/dummy_user.sql`
 
 4. **Jalankan server development:**

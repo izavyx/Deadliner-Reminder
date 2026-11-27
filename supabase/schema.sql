@@ -7,6 +7,7 @@ create table if not exists public.tasks (
   deadline    timestamptz not null,
   notes       text not null default '',
   is_done     boolean not null default false,
+  attachments jsonb not null default '[]'::jsonb,
   created_at  timestamptz not null default now()
 );
 

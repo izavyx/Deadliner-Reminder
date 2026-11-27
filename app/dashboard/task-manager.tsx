@@ -2,13 +2,16 @@
 
 import { useMemo, useState, useTransition } from "react";
 import type { Task } from "@/lib/types";
+import { getFileBadgeMeta, getFileCategory } from "@/lib/attachments";
 import {
   createTaskAction,
   deleteTaskAction,
   toggleTaskAction,
   updateTaskAction,
 } from "./actions";
+import { AttachmentField } from "@/components/attachment-field";
 import { DatePicker } from "@/components/date-picker";
+import { TaskDetailModal } from "@/components/task-detail-modal";
 import { useToast } from "@/components/toast";
 import {
   CancelButton,
@@ -86,9 +89,11 @@ function getDeadlineStatus(task: Task, now: number) {
 export function TaskManager({
   tasks,
   serverNow,
+  userId,
 }: {
   tasks: Task[];
   serverNow: number;
+  userId: string;
 }) {
   const toast = useToast();
 
@@ -97,10 +102,16 @@ export function TaskManager({
   const [query, setQuery] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>("table");
 
-  // Modal states (CRUD)
+  // Modal states (Preview Classroom + CRUD)
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
+  const [createKey, setCreateKey] = useState(0);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [deletingTask, setDeletingTask] = useState<Task | null>(null);
+
+  // Status sedang upload file pada form tambah/edit
+  const [uploadingCreate, setUploadingCreate] = useState(false);
+  const [uploadingEdit, setUploadingEdit] = useState(false);
 
   // Loading per-request untuk aksi baris (toggle & delete)
   const [togglingId, setTogglingId] = useState<string | null>(null);
@@ -112,6 +123,12 @@ export function TaskManager({
     const d = new Date(serverNow);
     return { year: d.getFullYear(), month: d.getMonth() };
   });
+
+  // Tugas aktif pada pop-up detail (selalu sinkron dengan data server terbaru)
+  const selectedTask = useMemo(
+    () => (selectedTaskId ? tasks.find((t) => t.id === selectedTaskId) ?? null : null),
+    [tasks, selectedTaskId],
+  );
 
   // Statistik ringkas
   const stats = useMemo(() => {
@@ -139,13 +156,23 @@ export function TaskManager({
         return false;
       }
       if (!q) return true;
+      const inAttachments = (t.attachments ?? []).some((a) =>
+        a.name.toLowerCase().includes(q),
+      );
       return (
         t.title.toLowerCase().includes(q) ||
         t.course.toLowerCase().includes(q) ||
-        t.notes.toLowerCase().includes(q)
+        t.notes.toLowerCase().includes(q) ||
+        inAttachments
       );
     });
   }, [tasks, filter, query, serverNow]);
+
+  function openCreateModal() {
+    setCreateKey((k) => k + 1);
+    setUploadingCreate(false);
+    setCreateOpen(true);
+  }
 
   async function handleCreate(formData: FormData) {
     const res = await createTaskAction(formData);
@@ -180,7 +207,10 @@ export function TaskManager({
       try {
         const res = await deleteTaskAction(target.id);
         toast(res.ok ? "success" : "error", res.message);
-        if (res.ok) setDeletingTask(null);
+        if (res.ok) {
+          if (selectedTaskId === target.id) setSelectedTaskId(null);
+          setDeletingTask(null);
+        }
       } catch {
         toast("error", "Terjadi kesalahan jaringan saat menghapus tugas.");
       }
@@ -262,8 +292,8 @@ export function TaskManager({
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Cari judul atau matkul..."
-            className="w-full rounded-lg border border-zinc-300 bg-transparent px-3 py-1.5 text-sm outline-none focus:border-indigo-500 sm:w-56 dark:border-zinc-700"
+            placeholder="Cari tugas, matkul, atau file..."
+            className="w-full rounded-lg border border-zinc-300 bg-transparent px-3 py-1.5 text-sm outline-none focus:border-indigo-500 sm:w-60 dark:border-zinc-700"
           />
 
           <div className="inline-flex rounded-lg border border-zinc-200 p-0.5 dark:border-zinc-700">
@@ -293,7 +323,7 @@ export function TaskManager({
 
           <button
             type="button"
-            onClick={() => setCreateOpen(true)}
+            onClick={openCreateModal}
             className={btnPrimary}
           >
             + Tambah Tugas
@@ -301,15 +331,25 @@ export function TaskManager({
         </div>
       </div>
 
-      {/* TAMPILAN TABEL CRUD */}
+      {/* TAMPILAN TABEL CRUD + KLIK BARIS UNTUK PREVIEW CLASSROOM */}
       {viewMode === "table" ? (
         <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+          <div className="flex items-center justify-between border-b border-zinc-200/80 bg-indigo-50/40 px-4 py-2 text-xs text-zinc-600 dark:border-zinc-800 dark:bg-indigo-950/20 dark:text-zinc-400">
+            <span>
+              💡 Klik baris tugas mana saja untuk membuka{" "}
+              <strong className="font-semibold text-indigo-700 dark:text-indigo-300">
+                pop-up deskripsi & lampiran materi/soal
+              </strong>{" "}
+              seperti Google Classroom.
+            </span>
+          </div>
+
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left text-sm">
               <thead>
                 <tr className="border-b border-zinc-200 bg-zinc-50/80 text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950/50">
                   <th className="w-12 px-4 py-3 text-center">Selesai</th>
-                  <th className="px-4 py-3">Tugas & Catatan</th>
+                  <th className="px-4 py-3">Tugas, Deskripsi & Lampiran</th>
                   <th className="px-4 py-3">Mata Kuliah</th>
                   <th className="px-4 py-3">Deadline</th>
                   <th className="px-4 py-3">Status</th>
@@ -329,14 +369,20 @@ export function TaskManager({
                   filteredTasks.map((task) => {
                     const status = getDeadlineStatus(task, serverNow);
                     const isRowLoading = togglingId === task.id;
+                    const attachments = task.attachments ?? [];
+
                     return (
                       <tr
                         key={task.id}
-                        className={`transition hover:bg-zinc-50/70 dark:hover:bg-zinc-800/40 ${
+                        onClick={() => setSelectedTaskId(task.id)}
+                        className={`group cursor-pointer transition hover:bg-indigo-50/40 dark:hover:bg-indigo-950/20 ${
                           task.is_done ? "opacity-65" : ""
                         }`}
                       >
-                        <td className="px-4 py-3.5 text-center align-middle">
+                        <td
+                          className="px-4 py-3.5 text-center align-middle"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <button
                             type="button"
                             disabled={isRowLoading}
@@ -358,18 +404,49 @@ export function TaskManager({
                           </button>
                         </td>
 
-                        <td className="max-w-xs px-4 py-3.5 align-middle">
-                          <p
-                            className={`font-medium ${
-                              task.is_done ? "text-zinc-400 line-through" : ""
-                            }`}
-                          >
-                            {task.title}
-                          </p>
+                        <td className="max-w-sm px-4 py-3.5 align-middle">
+                          <div className="flex items-center gap-2">
+                            <p
+                              className={`font-medium transition group-hover:text-indigo-600 dark:group-hover:text-indigo-400 ${
+                                task.is_done ? "text-zinc-400 line-through" : ""
+                              }`}
+                            >
+                              {task.title}
+                            </p>
+                          </div>
+
                           {task.notes && (
-                            <p className="mt-0.5 line-clamp-2 text-xs text-zinc-500">
+                            <p className="mt-0.5 line-clamp-1 text-xs text-zinc-500">
                               {task.notes}
                             </p>
+                          )}
+
+                          {/* Ringkasan chip lampiran ala Classroom di baris tabel */}
+                          {attachments.length > 0 && (
+                            <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                              {attachments.slice(0, 2).map((att) => {
+                                const cat = getFileCategory(att.mime_type, att.name);
+                                const meta = getFileBadgeMeta(cat);
+                                return (
+                                  <span
+                                    key={att.id}
+                                    className="inline-flex max-w-44 items-center gap-1 rounded-md border border-zinc-200 bg-zinc-50 px-1.5 py-0.5 text-[11px] text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800/80 dark:text-zinc-300"
+                                  >
+                                    <span
+                                      className={`rounded px-1 text-[9px] font-bold ${meta.boxClass}`}
+                                    >
+                                      {meta.short}
+                                    </span>
+                                    <span className="truncate">{att.name}</span>
+                                  </span>
+                                );
+                              })}
+                              {attachments.length > 2 && (
+                                <span className="rounded-md bg-indigo-50 px-1.5 py-0.5 text-[11px] font-medium text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300">
+                                  +{attachments.length - 2} file
+                                </span>
+                              )}
+                            </div>
                           )}
                         </td>
 
@@ -395,11 +472,24 @@ export function TaskManager({
                           </span>
                         </td>
 
-                        <td className="whitespace-nowrap px-4 py-3.5 text-right align-middle">
+                        <td
+                          className="whitespace-nowrap px-4 py-3.5 text-right align-middle"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <div className="inline-flex items-center gap-1.5">
                             <button
                               type="button"
-                              onClick={() => setEditingTask(task)}
+                              onClick={() => setSelectedTaskId(task.id)}
+                              className="rounded-md border border-indigo-200 bg-indigo-50/70 px-2.5 py-1 text-xs font-medium text-indigo-700 transition hover:bg-indigo-100 dark:border-indigo-900/70 dark:bg-indigo-950/50 dark:text-indigo-300 dark:hover:bg-indigo-900/50"
+                            >
+                              Buka{attachments.length > 0 ? ` (${attachments.length})` : ""}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setUploadingEdit(false);
+                                setEditingTask(task);
+                              }}
                               className="rounded-md border border-zinc-200 px-2.5 py-1 text-xs font-medium text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800"
                             >
                               Edit
@@ -478,21 +568,25 @@ export function TaskManager({
                     {cell.day}
                   </div>
                   <div className="space-y-1">
-                    {cell.items.map((t) => (
-                      <button
-                        key={t.id}
-                        type="button"
-                        onClick={() => setEditingTask(t)}
-                        className={`block w-full truncate rounded px-1.5 py-0.5 text-left text-[11px] font-medium transition ${
-                          t.is_done
-                            ? "bg-zinc-100 text-zinc-400 line-through dark:bg-zinc-800"
-                            : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-950 dark:text-indigo-200"
-                        }`}
-                        title={`${t.title} (${dateFmt.format(new Date(t.deadline))})`}
-                      >
-                        {t.title}
-                      </button>
-                    ))}
+                    {cell.items.map((t) => {
+                      const hasFiles = (t.attachments?.length ?? 0) > 0;
+                      return (
+                        <button
+                          key={t.id}
+                          type="button"
+                          onClick={() => setSelectedTaskId(t.id)}
+                          className={`flex w-full items-center justify-between gap-1 rounded px-1.5 py-0.5 text-left text-[11px] font-medium transition ${
+                            t.is_done
+                              ? "bg-zinc-100 text-zinc-400 line-through dark:bg-zinc-800"
+                              : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-950 dark:text-indigo-200"
+                          }`}
+                          title={`${t.title} (${dateFmt.format(new Date(t.deadline))})`}
+                        >
+                          <span className="truncate">{t.title}</span>
+                          {hasFiles && <span className="shrink-0 text-[10px]">📎</span>}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               ),
@@ -501,13 +595,32 @@ export function TaskManager({
         </div>
       )}
 
+      {/* POP-UP DETAIL & PREVIEW TUGAS ALA GOOGLE CLASSROOM */}
+      <TaskDetailModal
+        task={selectedTask}
+        userId={userId}
+        status={selectedTask ? getDeadlineStatus(selectedTask, serverNow) : null}
+        isToggling={Boolean(selectedTask && togglingId === selectedTask.id)}
+        onClose={() => setSelectedTaskId(null)}
+        onToggleDone={handleToggle}
+        onEdit={(t) => {
+          setSelectedTaskId(null);
+          setUploadingEdit(false);
+          setEditingTask(t);
+        }}
+        onDelete={(t) => {
+          setDeletingTask(t);
+        }}
+      />
+
       {/* MODAL TAMBAH TUGAS (CREATE) */}
       <Modal
         open={createOpen}
         onClose={() => setCreateOpen(false)}
         title="Tambah Tugas Baru"
+        maxWidthClass="max-w-lg"
       >
-        <form action={handleCreate} className="grid gap-3.5">
+        <form key={createKey} action={handleCreate} className="grid gap-3.5">
           <div>
             <label className="mb-1 block text-xs font-medium text-zinc-600 dark:text-zinc-400">
               Judul Tugas *
@@ -515,7 +628,7 @@ export function TaskManager({
             <input
               name="title"
               required
-              placeholder="Contoh: Makalah Metopen Bab 1"
+              placeholder="Contoh: Laporan Akhir PAP 1 Rekursif"
               className={inputClass}
             />
           </div>
@@ -526,7 +639,7 @@ export function TaskManager({
             </label>
             <input
               name="course"
-              placeholder="Contoh: Metodologi Penelitian"
+              placeholder="Contoh: Algoritma & Pemrograman 1"
               className={inputClass}
             />
           </div>
@@ -540,19 +653,29 @@ export function TaskManager({
 
           <div>
             <label className="mb-1 block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-              Catatan Tambahan
+              Deskripsi / Instruksi Tugas
             </label>
             <textarea
               name="notes"
               rows={3}
-              placeholder="Detail pengumpulan, link referensi, atau anggota kelompok..."
+              placeholder="Ketentuan soal, format nama file, link pengumpulan VClass, atau pembagian kelompok..."
               className={inputClass}
             />
           </div>
 
+          <AttachmentField
+            userId={userId}
+            onUploadingChange={setUploadingCreate}
+          />
+
           <div className="mt-2 flex justify-end gap-2">
             <CancelButton onClick={() => setCreateOpen(false)} />
-            <SubmitButton pendingText="Menyimpan...">Simpan Tugas</SubmitButton>
+            <SubmitButton
+              disabled={uploadingCreate}
+              pendingText="Menyimpan..."
+            >
+              {uploadingCreate ? "Menunggu Upload..." : "Simpan Tugas"}
+            </SubmitButton>
           </div>
         </form>
       </Modal>
@@ -561,7 +684,8 @@ export function TaskManager({
       <Modal
         open={Boolean(editingTask)}
         onClose={() => setEditingTask(null)}
-        title="Edit Tugas"
+        title="Edit Tugas & Lampiran"
+        maxWidthClass="max-w-lg"
       >
         {editingTask && (
           <form key={editingTask.id} action={handleUpdate} className="grid gap-3.5">
@@ -599,7 +723,7 @@ export function TaskManager({
 
             <div>
               <label className="mb-1 block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                Catatan Tambahan
+                Deskripsi / Instruksi Tugas
               </label>
               <textarea
                 name="notes"
@@ -609,10 +733,19 @@ export function TaskManager({
               />
             </div>
 
+            <AttachmentField
+              userId={userId}
+              defaultAttachments={editingTask.attachments ?? []}
+              onUploadingChange={setUploadingEdit}
+            />
+
             <div className="mt-2 flex justify-end gap-2">
               <CancelButton onClick={() => setEditingTask(null)} />
-              <SubmitButton pendingText="Memperbarui...">
-                Simpan Perubahan
+              <SubmitButton
+                disabled={uploadingEdit}
+                pendingText="Memperbarui..."
+              >
+                {uploadingEdit ? "Menunggu Upload..." : "Simpan Perubahan"}
               </SubmitButton>
             </div>
           </form>
@@ -634,7 +767,7 @@ export function TaskManager({
               <span className="font-semibold text-zinc-900 dark:text-zinc-100">
                 &ldquo;{deletingTask.title}&rdquo;
               </span>
-              ? Tindakan ini tidak dapat dibatalkan.
+              ? Seluruh file lampiran di dalamnya juga akan ikut dihapus permanen.
             </p>
             <div className="mt-6 flex justify-end gap-2">
               <button

@@ -196,7 +196,7 @@ export default function LandingPage() {
               </p>
             </div>
 
-            <div className="mt-12 grid gap-6 md:grid-cols-3">
+            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               <div className="rounded-2xl border border-zinc-200 p-6 dark:border-zinc-800">
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50 text-xl dark:bg-indigo-950">
                   📅
@@ -205,6 +205,17 @@ export default function LandingPage() {
                 <p className="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
                   Pilih tanggal & jam deadline langsung lewat kalender visual lengkap dengan
                   pintasan cepat (Hari ini, Besok, +1 Minggu) serta tampilan kalender bulanan.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-zinc-200 p-6 dark:border-zinc-800">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-violet-50 text-xl dark:bg-violet-950">
+                  📎
+                </div>
+                <h3 className="mt-4 text-lg font-semibold">Lampiran & Preview ala Classroom</h3>
+                <p className="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+                  Unggah gambar soal, slide PPT, atau modul PDF di tiap tugas. Klik baris tugas
+                  untuk membuka pop-up deskripsi dan preview materi tanpa bongkar chat WhatsApp/VClass.
                 </p>
               </div>
 
